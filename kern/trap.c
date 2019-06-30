@@ -16,6 +16,18 @@
 #include <kern/spinlock.h>
 
 /*
+struct PushRegs {
+       // registers as pushed by pusha 
+        uint32_t reg_edi;
+        uint32_t reg_esi;
+        uint32_t reg_ebp;
+        uint32_t reg_oesp;               //Useless 
+        uint32_t reg_ebx;
+        uint32_t reg_edx;
+        uint32_t reg_ecx;
+        uint32_t reg_eax;
+} __attribute__((packed));
+
 // Task state segment format (as described by the Pentium architecture book)
 truct Trapframe {
         struct PushRegs tf_regs;
@@ -422,7 +434,7 @@ trap(struct Trapframe *tf)
 	// fails, DO NOT be tempted to fix it by inserting a "cli" in
 	// the interrupt path.
 	assert(!(read_eflags() & FL_IF));
-
+//cprintf("tf.tf_regs.reg_eax:%d\n",tf->tf_regs.reg_eax);
 	if ((tf->tf_cs & 3) == 3) {
 		// Trapped from user mode.
 		// Acquire the big kernel lock before doing any

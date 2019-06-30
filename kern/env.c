@@ -466,6 +466,7 @@ env_create(uint8_t *binary, enum EnvType type)
 	load_icode(e,binary);
 	//panic("panic in the load_icode.\n");
 	e->env_type = type;
+	cprintf("THE e->env_id is:%d\n",e->env_id);
 }
 
 //
@@ -596,6 +597,8 @@ env_run(struct Env *e)
 	//	e->env_tf to sensible values.
 
 	// LAB 3: Your code here.
+
+//	cprintf("		We are going to run a env.\n");
 
 	if(curenv && curenv->env_status == ENV_RUNNING)
 	{

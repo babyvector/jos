@@ -86,7 +86,6 @@ sys_exofork(void)
 	// status is set to ENV_NOT_RUNNABLE, and the register set is copied
 	// from the current environment -- but tweaked so sys_exofork
 	// will appear to return 0.
-	cprintf("!we at sys_exofork().\n");
 	// LAB 4: Your code here.
 	struct Env * newenv_store;
 	if(curenv->env_id == 0)
@@ -98,10 +97,7 @@ sys_exofork(void)
 	
 	newenv_store->env_status = ENV_NOT_RUNNABLE;
 	memmove(&newenv_store->env_tf,&curenv->env_tf,sizeof(curenv->env_tf));
-	newenv_store->env_tf.tf_regs.reg_eax =100;
-	cprintf("curenv->env_id:%d\n",curenv->env_id);
-	cprintf("newenv_store->env_id:%d\n",newenv_store->env_id);
-	cprintf("GOING TO RETURN TO SYSTEM CALL.\n");
+	newenv_store->env_tf.tf_regs.reg_eax =0;
 	return newenv_store->env_id;
 	//panic("sys_exofork not implemented");
 }
