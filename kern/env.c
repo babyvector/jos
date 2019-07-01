@@ -102,7 +102,6 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 	// or an immediate child of the current environment.
 	if (checkperm && e != curenv && e->env_parent_id != curenv->env_id) {
 		*env_store = 0;
-		cprintf("we are at e->env_parent_id:%d curenv->env_id:%d\n",e->env_parent_id,curenv->env_id);
 		return -E_BAD_ENV;
 	}
 

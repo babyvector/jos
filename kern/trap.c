@@ -434,7 +434,7 @@ trap(struct Trapframe *tf)
 	// fails, DO NOT be tempted to fix it by inserting a "cli" in
 	// the interrupt path.
 	assert(!(read_eflags() & FL_IF));
-//cprintf("tf.tf_regs.reg_eax:%d\n",tf->tf_regs.reg_eax);
+
 	if ((tf->tf_cs & 3) == 3) {
 		// Trapped from user mode.
 		// Acquire the big kernel lock before doing any
@@ -468,7 +468,7 @@ trap(struct Trapframe *tf)
 	// If we made it to this point, then no other environment was
 	// scheduled, so we should return to the current environment
 	// if doing so makes sense.
-	if (curenv && curenv->env_status == ENV_RUNNING)
+	if(curenv && curenv->env_status == ENV_RUNNING)
 		env_run(curenv);
 	else
 		sched_yield();
@@ -496,8 +496,8 @@ page_fault_handler(struct Trapframe *tf)
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
-
-
+	
+	
 	// Call the environment's page fault upcall, if one exists.  Set up a
 	// page fault stack frame on the user exception stack (below
 	// UXSTACKTOP), then branch to curenv->env_pgfault_upcall.
