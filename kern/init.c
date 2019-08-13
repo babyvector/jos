@@ -73,10 +73,10 @@ i386_init(void)
 
 #if defined(TEST)
 	// Don't touch -- used by grading script!
-
+	cprintf("in the if TEST.\n");
 	ENV_CREATE(TEST, ENV_TYPE_USER);
 #else
-
+	cprintf("in the else TEST.\n");
 	// Touch all you want.
 	//ENV_CREATE(user_primes, ENV_TYPE_USER);
 

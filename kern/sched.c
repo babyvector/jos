@@ -50,17 +50,20 @@ sched_yield(void)
 	}else{
 		running_env_id = ENVX(curenv->env_id);
 	}
+	//cprintf("the real running env_id:%d\n",ENVX(curenv->env_id));
 	cprintf("The running_env_id is:%d\n",running_env_id);
 	for(int i = 0;i<NENV;i++){
 
-		if(running_env_id == NENV-1)running_env_id = 0;
-		else{
+		if(running_env_id == NENV-1){
+			running_env_id = 0;
+		}else{
 			running_env_id++;
 		}
+
 		if(envs[running_env_id].env_status == ENV_RUNNABLE){
-			;;;
 			cprintf("shed_yield():WE ARE RUNNING.\n");
 			cprintf("the running i is:%d\n",i);
+			env_run(&envs[0]);
 			env_run(&envs[running_env_id]);			
 			return;
 		}
