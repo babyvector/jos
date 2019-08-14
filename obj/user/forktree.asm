@@ -2167,7 +2167,7 @@ sys_env_destroy(envid_t envid)
   800b47:	68 c4 12 80 00       	push   $0x8012c4
   800b4c:	6a 23                	push   $0x23
   800b4e:	68 e1 12 80 00       	push   $0x8012e1
-  800b53:	e8 23 02 00 00       	call   800d7b <_panic>
+  800b53:	e8 30 02 00 00       	call   800d88 <_panic>
 
 int
 sys_env_destroy(envid_t envid)
@@ -2290,7 +2290,7 @@ sys_page_alloc(envid_t envid, void *va, int perm)
   800bc8:	68 c4 12 80 00       	push   $0x8012c4
   800bcd:	6a 23                	push   $0x23
   800bcf:	68 e1 12 80 00       	push   $0x8012e1
-  800bd4:	e8 a2 01 00 00       	call   800d7b <_panic>
+  800bd4:	e8 af 01 00 00       	call   800d88 <_panic>
 
 int
 sys_page_alloc(envid_t envid, void *va, int perm)
@@ -2343,7 +2343,7 @@ sys_page_map(envid_t srcenv, void *srcva, envid_t dstenv, void *dstva, int perm)
   800c0a:	68 c4 12 80 00       	push   $0x8012c4
   800c0f:	6a 23                	push   $0x23
   800c11:	68 e1 12 80 00       	push   $0x8012e1
-  800c16:	e8 60 01 00 00       	call   800d7b <_panic>
+  800c16:	e8 6d 01 00 00       	call   800d88 <_panic>
 
 int
 sys_page_map(envid_t srcenv, void *srcva, envid_t dstenv, void *dstva, int perm)
@@ -2396,7 +2396,7 @@ sys_page_unmap(envid_t envid, void *va)
   800c4c:	68 c4 12 80 00       	push   $0x8012c4
   800c51:	6a 23                	push   $0x23
   800c53:	68 e1 12 80 00       	push   $0x8012e1
-  800c58:	e8 1e 01 00 00       	call   800d7b <_panic>
+  800c58:	e8 2b 01 00 00       	call   800d88 <_panic>
 
 int
 sys_page_unmap(envid_t envid, void *va)
@@ -2451,7 +2451,7 @@ sys_env_set_status(envid_t envid, int status)
   800c8e:	68 c4 12 80 00       	push   $0x8012c4
   800c93:	6a 23                	push   $0x23
   800c95:	68 e1 12 80 00       	push   $0x8012e1
-  800c9a:	e8 dc 00 00 00       	call   800d7b <_panic>
+  800c9a:	e8 e9 00 00 00       	call   800d88 <_panic>
 
 int
 sys_env_set_status(envid_t envid, int status)
@@ -2504,7 +2504,7 @@ sys_env_set_pgfault_upcall(envid_t envid, void *upcall)
   800cd0:	68 c4 12 80 00       	push   $0x8012c4
   800cd5:	6a 23                	push   $0x23
   800cd7:	68 e1 12 80 00       	push   $0x8012e1
-  800cdc:	e8 9a 00 00 00       	call   800d7b <_panic>
+  800cdc:	e8 a7 00 00 00       	call   800d88 <_panic>
 
 int
 sys_env_set_pgfault_upcall(envid_t envid, void *upcall)
@@ -2592,7 +2592,7 @@ sys_ipc_recv(void *dstva)
   800d34:	68 c4 12 80 00       	push   $0x8012c4
   800d39:	6a 23                	push   $0x23
   800d3b:	68 e1 12 80 00       	push   $0x8012e1
-  800d40:	e8 36 00 00 00       	call   800d7b <_panic>
+  800d40:	e8 43 00 00 00       	call   800d88 <_panic>
 
 int
 sys_ipc_recv(void *dstva)
@@ -2615,81 +2615,78 @@ fork(void)
 {
   800d4d:	55                   	push   %ebp
   800d4e:	89 e5                	mov    %esp,%ebp
-  800d50:	83 ec 0c             	sub    $0xc,%esp
+  800d50:	83 ec 14             	sub    $0x14,%esp
+	cprintf("\t\t we are in the fork().\n");
+  800d53:	68 ef 12 80 00       	push   $0x8012ef
+  800d58:	e8 6f f4 ff ff       	call   8001cc <cprintf>
 	// LAB 4: Your code here.
 	panic("fork not implemented");
-  800d53:	68 fb 12 80 00       	push   $0x8012fb
-  800d58:	6a 51                	push   $0x51
-  800d5a:	68 ef 12 80 00       	push   $0x8012ef
-  800d5f:	e8 17 00 00 00       	call   800d7b <_panic>
+  800d5d:	83 c4 0c             	add    $0xc,%esp
+  800d60:	68 15 13 80 00       	push   $0x801315
+  800d65:	6a 52                	push   $0x52
+  800d67:	68 09 13 80 00       	push   $0x801309
+  800d6c:	e8 17 00 00 00       	call   800d88 <_panic>
 
-00800d64 <sfork>:
+00800d71 <sfork>:
 }
 
 // Challenge!
 int
 sfork(void)
 {
-  800d64:	55                   	push   %ebp
-  800d65:	89 e5                	mov    %esp,%ebp
-  800d67:	83 ec 0c             	sub    $0xc,%esp
+  800d71:	55                   	push   %ebp
+  800d72:	89 e5                	mov    %esp,%ebp
+  800d74:	83 ec 0c             	sub    $0xc,%esp
 	panic("sfork not implemented");
-  800d6a:	68 fa 12 80 00       	push   $0x8012fa
-  800d6f:	6a 58                	push   $0x58
-  800d71:	68 ef 12 80 00       	push   $0x8012ef
-  800d76:	e8 00 00 00 00       	call   800d7b <_panic>
+  800d77:	68 14 13 80 00       	push   $0x801314
+  800d7c:	6a 59                	push   $0x59
+  800d7e:	68 09 13 80 00       	push   $0x801309
+  800d83:	e8 00 00 00 00       	call   800d88 <_panic>
 
-00800d7b <_panic>:
+00800d88 <_panic>:
  * It prints "panic: <message>", then causes a breakpoint exception,
  * which causes JOS to enter the JOS kernel monitor.
  */
 void
 _panic(const char *file, int line, const char *fmt, ...)
 {
-  800d7b:	55                   	push   %ebp
-  800d7c:	89 e5                	mov    %esp,%ebp
-  800d7e:	56                   	push   %esi
-  800d7f:	53                   	push   %ebx
+  800d88:	55                   	push   %ebp
+  800d89:	89 e5                	mov    %esp,%ebp
+  800d8b:	56                   	push   %esi
+  800d8c:	53                   	push   %ebx
 	va_list ap;
 
 	va_start(ap, fmt);
-  800d80:	8d 5d 14             	lea    0x14(%ebp),%ebx
+  800d8d:	8d 5d 14             	lea    0x14(%ebp),%ebx
 
 	// Print the panic message
 	cprintf("[%08x] user panic in %s at %s:%d: ",
-  800d83:	8b 35 00 20 80 00    	mov    0x802000,%esi
-  800d89:	e8 d2 fd ff ff       	call   800b60 <sys_getenvid>
-  800d8e:	83 ec 0c             	sub    $0xc,%esp
-  800d91:	ff 75 0c             	pushl  0xc(%ebp)
-  800d94:	ff 75 08             	pushl  0x8(%ebp)
-  800d97:	56                   	push   %esi
-  800d98:	50                   	push   %eax
-  800d99:	68 10 13 80 00       	push   $0x801310
-  800d9e:	e8 29 f4 ff ff       	call   8001cc <cprintf>
+  800d90:	8b 35 00 20 80 00    	mov    0x802000,%esi
+  800d96:	e8 c5 fd ff ff       	call   800b60 <sys_getenvid>
+  800d9b:	83 ec 0c             	sub    $0xc,%esp
+  800d9e:	ff 75 0c             	pushl  0xc(%ebp)
+  800da1:	ff 75 08             	pushl  0x8(%ebp)
+  800da4:	56                   	push   %esi
+  800da5:	50                   	push   %eax
+  800da6:	68 2c 13 80 00       	push   $0x80132c
+  800dab:	e8 1c f4 ff ff       	call   8001cc <cprintf>
 		sys_getenvid(), binaryname, file, line);
 	vcprintf(fmt, ap);
-  800da3:	83 c4 18             	add    $0x18,%esp
-  800da6:	53                   	push   %ebx
-  800da7:	ff 75 10             	pushl  0x10(%ebp)
-  800daa:	e8 cc f3 ff ff       	call   80017b <vcprintf>
+  800db0:	83 c4 18             	add    $0x18,%esp
+  800db3:	53                   	push   %ebx
+  800db4:	ff 75 10             	pushl  0x10(%ebp)
+  800db7:	e8 bf f3 ff ff       	call   80017b <vcprintf>
 	cprintf("\n");
-  800daf:	c7 04 24 6f 10 80 00 	movl   $0x80106f,(%esp)
-  800db6:	e8 11 f4 ff ff       	call   8001cc <cprintf>
-  800dbb:	83 c4 10             	add    $0x10,%esp
+  800dbc:	c7 04 24 6f 10 80 00 	movl   $0x80106f,(%esp)
+  800dc3:	e8 04 f4 ff ff       	call   8001cc <cprintf>
+  800dc8:	83 c4 10             	add    $0x10,%esp
 
 	// Cause a breakpoint exception
 	while (1)
 		asm volatile("int3");
-  800dbe:	cc                   	int3   
-  800dbf:	eb fd                	jmp    800dbe <_panic+0x43>
-  800dc1:	66 90                	xchg   %ax,%ax
-  800dc3:	66 90                	xchg   %ax,%ax
-  800dc5:	66 90                	xchg   %ax,%ax
-  800dc7:	66 90                	xchg   %ax,%ax
-  800dc9:	66 90                	xchg   %ax,%ax
-  800dcb:	66 90                	xchg   %ax,%ax
-  800dcd:	66 90                	xchg   %ax,%ax
-  800dcf:	90                   	nop
+  800dcb:	cc                   	int3   
+  800dcc:	eb fd                	jmp    800dcb <_panic+0x43>
+  800dce:	66 90                	xchg   %ax,%ax
 
 00800dd0 <__udivdi3>:
   800dd0:	55                   	push   %ebp

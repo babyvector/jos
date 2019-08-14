@@ -83,10 +83,10 @@ i386_init(void)
 	//we use the next 3 lines to test Excerse 6.
 	//ENV_CREATE(user_yield,ENV_TYPE_USER);
 	//ENV_CREATE(user_yield,ENV_TYPE_USER);
-	//ENV_CREATE(user_yield,ENV_TYPE_USER);
+	ENV_CREATE(user_yield,ENV_TYPE_USER);
 
 	//we use the next  line to test Excerse 7
-	ENV_CREATE(user_dumbfork,ENV_TYPE_USER);
+	//ENV_CREATE(user_dumbfork,ENV_TYPE_USER);
 #endif 
 	// Schedule and run the first user environment!
 	sched_yield();

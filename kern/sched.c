@@ -48,6 +48,7 @@ sched_yield(void)
 	if(curenv == 0){
 		running_env_id = -1;
 	}else{
+		cprintf("\t WE MAY CRUSH HERE.\n");
 		running_env_id = ENVX(curenv->env_id);
 	}
 	//cprintf("the real running env_id:%d\n",ENVX(curenv->env_id));
@@ -61,10 +62,9 @@ sched_yield(void)
 		}
 
 		if(envs[running_env_id].env_status == ENV_RUNNABLE){
-			cprintf("shed_yield():WE ARE RUNNING.\n");
-			cprintf("the running i is:%d\n",i);
+			cprintf("\tWE ARE RUNNING ENV_ID IS:%d\n",running_env_id);
 			env_run(&envs[0]);
-			env_run(&envs[running_env_id]);			
+			//env_run(&envs[running_env_id]);			
 			return;
 		}
 	}

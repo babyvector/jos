@@ -179,7 +179,31 @@ trap_init(void)
 	void t_mchk();
 	void t_simderr();
 	void t_syscall();
+	
+	void iqr0(); 
+	void iqr1(); 
+	void iqr2(); 
+	void iqr3(); 
+	void iqr4(); 
+	void iqr5(); 
+	void iqr6(); 
+	void iqr7(); 
+	void iqr8(); 
+	void iqr9(); 
+	void iqr10(); 
+	void iqr11(); 
+	void iqr12(); 
+	void iqr13(); 
+	void iqr14(); 
+	void iqr15();	 
 
+	void (*iqrs[])() = {
+		iqr0,iqr1,iqr2,iqr3, iqr4, iqr5, iqr6, iqr7, iqr8, iqr9, iqr10, iqr11, iqr12, iqr13, iqr14, iqr15
+	};
+	int i;
+	for(i = 0;i<16;i++){
+		SETGATE(idt[IRQ_OFFSET + i], 0 ,GD_KT, iqrs[i], 0);
+	}
 	SETGATE(idt[T_DIVIDE],0,GD_KT,t_divide,0);
 	SETGATE(idt[T_DEBUG],0,GD_KT,t_debug,0);
 //	SETGAET(idt[T_NMI],0,GD_KT,t_nmi,0);
@@ -381,10 +405,16 @@ trap_dispatch(struct Trapframe *tf)
 	// Handle clock interrupts. Don't forget to acknowledge the
 	// interrupt using lapic_eoi() before calling the scheduler!
 	// LAB 4: Your code here.
-
+	if(tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER){
+		cprintf("\t\t we are at clock interrupt.\n");
+		lapic_eoi();
+		sched_yield();
+		return ;
+	}
 	// Unexpected trap: The user process or the kernel has a bug.
 	switch(tf->tf_trapno){
 		case T_PGFLT:
+			cprintf("\tFunction:trap_dispatch()->T_PGFLT.\n");
 			page_fault_handler(tf);
 			return;
 		case T_BRKPT:
@@ -392,7 +422,7 @@ trap_dispatch(struct Trapframe *tf)
 			monitor(tf);
 			return;
 		case T_SYSCALL:
-			//cprintf("Function:trap_dispatch()->T_SYSCALL.\n");
+			cprintf("\tFunction:trap_dispatch()->T_SYSCALL.\n");
 			tf->tf_regs.reg_eax = syscall(
        				 tf->tf_regs.reg_eax,
        				 tf->tf_regs.reg_edx,
@@ -479,10 +509,11 @@ trap(struct Trapframe *tf)
 
 }
 
-
+typedef void*(*fun)(void);
 void
 page_fault_handler(struct Trapframe *tf)
 {
+	cprintf("\t AT function trap.c/page_fault_handler().\n");
 	uint32_t fault_va;
 
 	// Read processor's CR2 register to find the faulting address
@@ -496,8 +527,41 @@ page_fault_handler(struct Trapframe *tf)
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
+	if(curenv == 0){
+		panic("curenv does't exist.\n");
+	}
+	cprintf("\ttrap env_id is:%d\n",curenv->env_id);	
+	if(curenv->env_pgfault_upcall == 0){
+		panic("curenv->env_pgfault_upcall does't exist.\n");
+	}
+	if(curenv->env_pgfault_upcall != 0){
+		cprintf("\t now we invoke the env_pgfault_upcall.\n");
+		//(fun(curenv->env_pgfault_upcall))();		
+	//	( (fun)(curenv->env_pgfault_upcall) )();
 	
-	
+		struct UTrapframe *utf;
+		uintptr_t utf_addr;
+		if (UXSTACKTOP-PGSIZE<=tf->tf_esp && tf->tf_esp<=UXSTACKTOP-1)
+			utf_addr = tf->tf_esp - sizeof(struct UTrapframe) - 4;
+		else 
+			utf_addr = UXSTACKTOP - sizeof(struct UTrapframe);
+		cprintf("\t before user_mem_assert.\n");
+		user_mem_assert(curenv, (void*)utf_addr, 1, PTE_W);//1 is enough
+		cprintf("\t after user_mem_assert.\n");
+		utf = (struct UTrapframe *) utf_addr;
+
+		utf->utf_fault_va = fault_va;
+		utf->utf_err = tf->tf_err;
+		utf->utf_regs = tf->tf_regs;
+		utf->utf_eip = tf->tf_eip;
+		utf->utf_eflags = tf->tf_eflags;
+		utf->utf_esp = tf->tf_esp;
+
+		curenv->env_tf.tf_eip = (uintptr_t)curenv->env_pgfault_upcall;
+		curenv->env_tf.tf_esp = utf_addr;
+		cprintf("\t before env_run curenv.\n");
+		env_run(curenv);
+	}	
 	// Call the environment's page fault upcall, if one exists.  Set up a
 	// page fault stack frame on the user exception stack (below
 	// UXSTACKTOP), then branch to curenv->env_pgfault_upcall.
@@ -536,4 +600,5 @@ page_fault_handler(struct Trapframe *tf)
 		curenv->env_id, fault_va, tf->tf_eip);
 	print_trapframe(tf);
 	env_destroy(curenv);
+	cprintf("\t OUT function trap.c/page_fault_handler.\n");
 }

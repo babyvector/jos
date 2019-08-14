@@ -1,7 +1,7 @@
 00200010 R __STAB_BEGIN__
-00202cc8 R __STAB_END__
-00202cc9 R __STABSTR_BEGIN__
-00204786 R __STABSTR_END__
+00202cd4 R __STAB_END__
+00202cd5 R __STABSTR_BEGIN__
+00204792 R __STABSTR_END__
 00800020 T _start
 0080002c t args_exist
 00800033 T umain
@@ -47,10 +47,10 @@
 00800d3b T sys_ipc_try_send
 00800d5e T sys_ipc_recv
 00800d9f T fork
-00800db6 T sfork
-00800dd0 T __udivdi3
-00800f00 T __umoddi3
-00801300 r error_string
+00800dc3 T sfork
+00800de0 T __udivdi3
+00800f10 T __umoddi3
+00801320 r error_string
 00802000 D binaryname
 00802004 B counter
 00802008 B thisenv

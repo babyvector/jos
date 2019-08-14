@@ -1,7 +1,7 @@
 00200010 R __STAB_BEGIN__
-00202cec R __STAB_END__
-00202ced R __STABSTR_BEGIN__
-00204839 R __STABSTR_END__
+00202e18 R __STAB_END__
+00202e19 R __STABSTR_BEGIN__
+00204973 R __STABSTR_END__
 00800020 T _start
 0080002c t args_exist
 00800033 T handler
@@ -48,9 +48,10 @@
 00800d03 T sys_ipc_try_send
 00800d26 T sys_ipc_recv
 00800d67 T set_pgfault_handler
-00800dd0 T __udivdi3
-00800f00 T __umoddi3
-00801320 r error_string
+00800e2e T _pgfault_upcall
+00800e60 T __udivdi3
+00800f90 T __umoddi3
+008013c0 r error_string
 00802000 D binaryname
 00802004 B thisenv
 00802008 B _pgfault_handler

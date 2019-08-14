@@ -77,6 +77,7 @@ duppage(envid_t envid, unsigned pn)
 envid_t
 fork(void)
 {
+	cprintf("\t\t we are in the fork().\n");
 	// LAB 4: Your code here.
 	panic("fork not implemented");
 }

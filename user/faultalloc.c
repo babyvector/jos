@@ -9,10 +9,14 @@ handler(struct UTrapframe *utf)
 	void *addr = (void*)utf->utf_fault_va;
 
 	cprintf("fault %x\n", addr);
+	cprintf("\t in handler:\n");
 	if ((r = sys_page_alloc(0, ROUNDDOWN(addr, PGSIZE),
 				PTE_P|PTE_U|PTE_W)) < 0)
 		panic("allocating at %x in page fault handler: %e", addr, r);
+	cprintf("\t !!before snprintf.\n");
 	snprintf((char*) addr, 100, "this string was faulted in at %x", addr);
+	cprintf("%s\n",addr);
+	cprintf("\t !!after snprintf.\n");
 }
 
 void

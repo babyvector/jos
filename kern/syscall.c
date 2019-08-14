@@ -142,11 +142,14 @@ static int
 sys_env_set_pgfault_upcall(envid_t envid, void *func)
 {
 	// LAB 4: Your code here.
+	//panic("\t we panic at sys_env_set_pgfault_upcall.\n");
 	struct Env * newenv_store;
 	int r_value = envid2env(envid,&newenv_store,1);
-	if(r_value)
+	if(r_value){
 		return r_value;
+	}
 	newenv_store->env_pgfault_upcall = func;	
+	cprintf("\tnewenv_store->env_pgfault_upcall is:%d\n",newenv_store->env_pgfault_upcall);
 	return 0;
 	//panic("sys_env_set_pgfault_upcall not implemented");
 	
@@ -394,6 +397,8 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
 			return sys_exofork();
 		case SYS_env_set_status:
 			return sys_env_set_status((envid_t)a1,(int)a2);
+		case SYS_env_set_pgfault_upcall:
+			return sys_env_set_pgfault_upcall((envid_t)a1,(void*)a2);
 		case SYS_page_alloc:
 			return sys_page_alloc((envid_t)a1,(void*)a2,(int)a3);
 		case SYS_page_map:
