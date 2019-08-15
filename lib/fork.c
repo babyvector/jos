@@ -25,14 +25,33 @@ pgfault(struct UTrapframe *utf)
 	//   (see <inc/memlayout.h>).
 
 	// LAB 4: Your code here.
+	if(!(
+		(err&FEC_WR)&&
+		(uvpd[PDX(addr)]&PTE_P)&&
+		(uvpt[PGNUM(addr)]&PTE_P)&&
+		(uvpt[PGNUM(addr)]&PTE_COW)	
+	    )){
+		panic("can't copy-on-write.\n");
+	}
 
 	// Allocate a new page, map it at a temporary location (PFTEMP),
 	// copy the data from the old page to the new page, then move the new
 	// page to the old page's address.
 	// Hint:
 	//   You should make three system calls.
-
+	
 	// LAB 4: Your code here.
+	int retv = 0;
+	addr = ROUNDDOWN(addr, PGSIZE);
+	if(sys_page_alloc(0, PFTEMP, PTE_W|PTE_U|PTE_P)<0){
+		panic("sys_page_alloc");
+	}
+	memcpy(PFTEMP, addr, PGSIZE);
+	
+	retv = sys_page_map(0, PFTEMP, 0, addr, PTE_W|PTE_U|PTE_P);
+	if(retv < 0){
+		panic("sys_page_map");
+	}
 
 	panic("pgfault not implemented");
 }
@@ -54,6 +73,17 @@ duppage(envid_t envid, unsigned pn)
 	int r;
 
 	// LAB 4: Your code here.
+	void *addr = (void*)(pn*PGSIZE);
+	if( (uvpt[pn] & PTE_W)||(uvpt[pn]) & PTE_COW ){
+		if(sys_page_map(0, addr, envid, addr, PTE_COW|PTE_P|PTE_U)<0){
+			panic("map env id 0 to envid");
+		}
+		if(sys_page_map(0, addr, 0, addr, PTE_COW|PTE_P|PTE_U)<0){
+			panic("map env id 0 to 0");
+		}//?we should mark PTE_COW both to two id.
+	}else{
+		sys_page_map(0, addr, envid, addr, PTE_U|PTE_P);
+	}
 	panic("duppage not implemented");
 	return 0;
 }
@@ -79,6 +109,21 @@ fork(void)
 {
 	cprintf("\t\t we are in the fork().\n");
 	// LAB 4: Your code here.
+	envid_t child_envid = -1;	
+	//first set up pgfault_handler
+	set_pgfault_handler(pgfault);
+	//create a child
+	child_envid = sys_exofork();
+	if(child_envid < 0 ){
+		panic("sys_exofork failed.");
+	} 
+	
+	//copy address space and page fault handler to the child.
+	
+
+	//set up a user exception stack for pgfault() to run.
+
+	
 	panic("fork not implemented");
 }
 

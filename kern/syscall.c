@@ -187,7 +187,7 @@ sys_page_alloc(envid_t envid, void *va, int perm)
 	int r_value = envid2env(envid,&newenv_store,1);
 	if(r_value)
 		return r_value;
-	cprintf("after envid2env().\n");
+	//cprintf("after envid2env().\n");
 	if(va>=(void*)UTOP || ((unsigned int)va<<20))
 		return -E_INVAL;
 	

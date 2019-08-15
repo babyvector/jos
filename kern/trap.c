@@ -408,7 +408,7 @@ trap_dispatch(struct Trapframe *tf)
 	if(tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER){
 		cprintf("\t\t we are at clock interrupt.\n");
 		lapic_eoi();
-		sched_yield();
+	//	sched_yield();
 		return ;
 	}
 	// Unexpected trap: The user process or the kernel has a bug.
@@ -513,7 +513,7 @@ typedef void*(*fun)(void);
 void
 page_fault_handler(struct Trapframe *tf)
 {
-	cprintf("\t AT function trap.c/page_fault_handler().\n");
+	//cprintf("\t AT function trap.c/page_fault_handler().\n");
 	uint32_t fault_va;
 
 	// Read processor's CR2 register to find the faulting address
@@ -530,12 +530,12 @@ page_fault_handler(struct Trapframe *tf)
 	if(curenv == 0){
 		panic("curenv does't exist.\n");
 	}
-	cprintf("\ttrap env_id is:%d\n",curenv->env_id);	
+	//cprintf("\ttrap env_id is:%d\n",curenv->env_id);	
 	if(curenv->env_pgfault_upcall == 0){
 		panic("curenv->env_pgfault_upcall does't exist.\n");
 	}
 	if(curenv->env_pgfault_upcall != 0){
-		cprintf("\t now we invoke the env_pgfault_upcall.\n");
+	//	cprintf("\t now we invoke the env_pgfault_upcall.\n");
 		//(fun(curenv->env_pgfault_upcall))();		
 	//	( (fun)(curenv->env_pgfault_upcall) )();
 	
@@ -545,9 +545,9 @@ page_fault_handler(struct Trapframe *tf)
 			utf_addr = tf->tf_esp - sizeof(struct UTrapframe) - 4;
 		else 
 			utf_addr = UXSTACKTOP - sizeof(struct UTrapframe);
-		cprintf("\t before user_mem_assert.\n");
+	//	cprintf("\t before user_mem_assert.\n");
 		user_mem_assert(curenv, (void*)utf_addr, 1, PTE_W);//1 is enough
-		cprintf("\t after user_mem_assert.\n");
+	//	cprintf("\t after user_mem_assert.\n");
 		utf = (struct UTrapframe *) utf_addr;
 
 		utf->utf_fault_va = fault_va;
@@ -559,7 +559,7 @@ page_fault_handler(struct Trapframe *tf)
 
 		curenv->env_tf.tf_eip = (uintptr_t)curenv->env_pgfault_upcall;
 		curenv->env_tf.tf_esp = utf_addr;
-		cprintf("\t before env_run curenv.\n");
+	//	cprintf("\t before env_run curenv.\n");
 		env_run(curenv);
 	}	
 	// Call the environment's page fault upcall, if one exists.  Set up a
@@ -600,5 +600,5 @@ page_fault_handler(struct Trapframe *tf)
 		curenv->env_id, fault_va, tf->tf_eip);
 	print_trapframe(tf);
 	env_destroy(curenv);
-	cprintf("\t OUT function trap.c/page_fault_handler.\n");
+	//cprintf("\t OUT function trap.c/page_fault_handler.\n");
 }
