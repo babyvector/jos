@@ -431,7 +431,8 @@ trap_dispatch(struct Trapframe *tf)
        				 tf->tf_regs.reg_edi,
        				 tf->tf_regs.reg_esi
    			 );
-  			  return;
+  			cprintf("after T_SYSCALL.\n");
+			  return;
 		default:break;
 	}
 	print_trapframe(tf);
@@ -498,11 +499,16 @@ trap(struct Trapframe *tf)
 	// If we made it to this point, then no other environment was
 	// scheduled, so we should return to the current environment
 	// if doing so makes sense.
-	if(curenv && curenv->env_status == ENV_RUNNING)
+	if(curenv && curenv->env_status == ENV_RUNNING){
+		cprintf("\t\t\trunning this env.\n");
+	
 		env_run(curenv);
-	else
+		
+	}else{
+		cprintf("\t\t\tsched this env.\n");
+	
 		sched_yield();
-
+	}
 	// Return to the current environment, which should be running.
 	assert(curenv && curenv->env_status == ENV_RUNNING);
 	env_run(curenv);

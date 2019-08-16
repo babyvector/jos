@@ -270,7 +270,10 @@ sys_page_map(envid_t srcenvid, void *srcva,
 		return -E_INVAL;
 
 	cprintf("error before page_insert newenv_store_dst: %x,dstva:%x .\n",newenv_store_dst,dstva);
-	if(page_insert(newenv_store_dst->env_pgdir,pp,dstva,perm))
+	int ret = 0;
+	ret = (page_insert(newenv_store_dst->env_pgdir,pp,dstva,perm));
+	cprintf("after page_insert.\n");
+	if(ret < 0)
 		return -E_NO_MEM;
 	else
 		return 0;	

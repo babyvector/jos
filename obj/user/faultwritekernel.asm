@@ -213,7 +213,7 @@ sys_env_destroy(envid_t envid)
 		       "D" (a4),
 		       "S" (a5)
 		     : "cc", "memory");
-
+	//cprintf("the sys_call ret is:%d\n",ret);
 	if(check && ret > 0)
   8000f5:	85 c0                	test   %eax,%eax
   8000f7:	7e 17                	jle    800110 <sys_env_destroy+0x39>
@@ -336,7 +336,7 @@ sys_page_alloc(envid_t envid, void *va, int perm)
 		       "D" (a4),
 		       "S" (a5)
 		     : "cc", "memory");
-
+	//cprintf("the sys_call ret is:%d\n",ret);
 	if(check && ret > 0)
   800176:	85 c0                	test   %eax,%eax
   800178:	7e 17                	jle    800191 <sys_page_alloc+0x3b>
@@ -389,7 +389,7 @@ sys_page_map(envid_t srcenv, void *srcva, envid_t dstenv, void *dstva, int perm)
 		       "D" (a4),
 		       "S" (a5)
 		     : "cc", "memory");
-
+	//cprintf("the sys_call ret is:%d\n",ret);
 	if(check && ret > 0)
   8001b8:	85 c0                	test   %eax,%eax
   8001ba:	7e 17                	jle    8001d3 <sys_page_map+0x3a>
@@ -401,10 +401,10 @@ sys_page_map(envid_t srcenv, void *srcva, envid_t dstenv, void *dstva, int perm)
   8001c7:	6a 23                	push   $0x23
   8001c9:	68 c7 0f 80 00       	push   $0x800fc7
   8001ce:	e8 32 01 00 00       	call   800305 <_panic>
-
 int
 sys_page_map(envid_t srcenv, void *srcva, envid_t dstenv, void *dstva, int perm)
 {
+	
 	return syscall(SYS_page_map, 1, srcenv, (uint32_t) srcva, dstenv, (uint32_t) dstva, perm);
 }
   8001d3:	8d 65 f4             	lea    -0xc(%ebp),%esp
@@ -442,7 +442,7 @@ sys_page_unmap(envid_t envid, void *va)
 		       "D" (a4),
 		       "S" (a5)
 		     : "cc", "memory");
-
+	//cprintf("the sys_call ret is:%d\n",ret);
 	if(check && ret > 0)
   8001fa:	85 c0                	test   %eax,%eax
   8001fc:	7e 17                	jle    800215 <sys_page_unmap+0x3a>
@@ -454,10 +454,10 @@ sys_page_unmap(envid_t envid, void *va)
   800209:	6a 23                	push   $0x23
   80020b:	68 c7 0f 80 00       	push   $0x800fc7
   800210:	e8 f0 00 00 00       	call   800305 <_panic>
-
 int
 sys_page_unmap(envid_t envid, void *va)
 {
+	
 	return syscall(SYS_page_unmap, 1, envid, (uint32_t) va, 0, 0, 0);
 }
   800215:	8d 65 f4             	lea    -0xc(%ebp),%esp
@@ -497,7 +497,7 @@ sys_env_set_status(envid_t envid, int status)
 		       "D" (a4),
 		       "S" (a5)
 		     : "cc", "memory");
-
+	//cprintf("the sys_call ret is:%d\n",ret);
 	if(check && ret > 0)
   80023c:	85 c0                	test   %eax,%eax
   80023e:	7e 17                	jle    800257 <sys_env_set_status+0x3a>
@@ -550,7 +550,7 @@ sys_env_set_pgfault_upcall(envid_t envid, void *upcall)
 		       "D" (a4),
 		       "S" (a5)
 		     : "cc", "memory");
-
+	//cprintf("the sys_call ret is:%d\n",ret);
 	if(check && ret > 0)
   80027e:	85 c0                	test   %eax,%eax
   800280:	7e 17                	jle    800299 <sys_env_set_pgfault_upcall+0x3a>
@@ -638,7 +638,7 @@ sys_ipc_recv(void *dstva)
 		       "D" (a4),
 		       "S" (a5)
 		     : "cc", "memory");
-
+	//cprintf("the sys_call ret is:%d\n",ret);
 	if(check && ret > 0)
   8002e2:	85 c0                	test   %eax,%eax
   8002e4:	7e 17                	jle    8002fd <sys_ipc_recv+0x39>

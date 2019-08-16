@@ -41,6 +41,7 @@ pgfault(struct UTrapframe *utf)
 	//   You should make three system calls.
 	
 	// LAB 4: Your code here.
+	cprintf("in pgfault.\n");
 	int retv = 0;
 	addr = ROUNDDOWN(addr, PGSIZE);
 	if(sys_page_alloc(0, PFTEMP, PTE_W|PTE_U|PTE_P)<0){
@@ -52,6 +53,7 @@ pgfault(struct UTrapframe *utf)
 	if(retv < 0){
 		panic("sys_page_map");
 	}
+	cprintf("out of pgfault.\n");
 	return;
 	panic("pgfault not implemented");
 }
@@ -75,22 +77,25 @@ duppage(envid_t envid, unsigned pn)
 	// LAB 4: Your code here.
 	void *addr = (void*)(pn*PGSIZE);
 	if( (uvpt[pn] & PTE_W)||(uvpt[pn]) & PTE_COW ){
-		
+		cprintf("!!start page map.\n");	
 		r = sys_page_map(0, addr, envid, addr, PTE_COW|PTE_P|PTE_U);
 		if(r<0){
 			cprintf("sys_page_map failed :%d\n",r);
 			panic("map env id 0 to child_envid failed.");
 		
 		}
+		cprintf("mapping addr is:%x\n",addr);
 		r = sys_page_map(0, addr, 0, addr, PTE_COW|PTE_P|PTE_U);
+//		cprintf("!!end sys_page_map 0.\n");
 		if(r<0){
 			cprintf("sys_page_map failed :%d\n",r);
 			panic("map env id 0 to 0");
 		}//?we should mark PTE_COW both to two id.
+//		cprintf("!!end page map.\n");	
 	}else{
 		sys_page_map(0, addr, envid, addr, PTE_U|PTE_P);
 	}
-	cprintf("1.");
+	//cprintf("1.");
 	//panic("duppage not implemented");
 	return 0;
 }
