@@ -254,18 +254,22 @@ sys_page_map(envid_t srcenvid, void *srcva,
  	pp = page_lookup(newenv_store_src->env_pgdir,srcva,&pte_store);
 	if(!pp)
 		return -E_INVAL;
-
+//	panic("sys_page_map run here.\n");
 	int check_perm1 = PTE_U|PTE_P;
 	int check_perm2 = PTE_U|PTE_P|PTE_AVAIL;
 	int check_perm3 = PTE_U|PTE_P|PTE_W;
 	int check_perm4 = PTE_U|PTE_P|PTE_AVAIL|PTE_W;
-	if(!(perm == check_perm1 || perm == check_perm2 || perm == check_perm3 || perm == check_perm4))
+	if( (perm&PTE_U) && (perm&PTE_P) == 0) {
 		return -E_INVAL;
-
+	}
+	if(!( perm&PTE_W || perm&PTE_AVAIL )){
+		return -E_INVAL;
+	}
+//	panic("sys_page_map run here.\n");
 	if(perm&PTE_W && !((*pte_store)&PTE_W))
 		return -E_INVAL;
 
-
+	cprintf("error before page_insert newenv_store_dst: %x,dstva:%x .\n",newenv_store_dst,dstva);
 	if(page_insert(newenv_store_dst->env_pgdir,pp,dstva,perm))
 		return -E_NO_MEM;
 	else

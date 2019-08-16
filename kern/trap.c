@@ -414,7 +414,7 @@ trap_dispatch(struct Trapframe *tf)
 	// Unexpected trap: The user process or the kernel has a bug.
 	switch(tf->tf_trapno){
 		case T_PGFLT:
-			cprintf("\tFunction:trap_dispatch()->T_PGFLT.\n");
+			cprintf("\tT_PGFLT.\n");
 			page_fault_handler(tf);
 			return;
 		case T_BRKPT:
@@ -422,7 +422,7 @@ trap_dispatch(struct Trapframe *tf)
 			monitor(tf);
 			return;
 		case T_SYSCALL:
-			cprintf("\tFunction:trap_dispatch()->T_SYSCALL.\n");
+			cprintf("\tT_SYSCALL.\n");
 			tf->tf_regs.reg_eax = syscall(
        				 tf->tf_regs.reg_eax,
        				 tf->tf_regs.reg_edx,
@@ -594,8 +594,8 @@ page_fault_handler(struct Trapframe *tf)
 	// LAB 4: Your code here.
 
 	// Destroy the environment that caused the fault.
-	print_trapframe(tf);
-	env_destroy(curenv);
+//	print_trapframe(tf);
+//	env_destroy(curenv);
 	cprintf("[%08x] user fault va %08x ip %08x\n",
 		curenv->env_id, fault_va, tf->tf_eip);
 	print_trapframe(tf);

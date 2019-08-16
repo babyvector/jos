@@ -52,7 +52,7 @@ pgfault(struct UTrapframe *utf)
 	if(retv < 0){
 		panic("sys_page_map");
 	}
-
+	return;
 	panic("pgfault not implemented");
 }
 
@@ -70,21 +70,28 @@ pgfault(struct UTrapframe *utf)
 static int
 duppage(envid_t envid, unsigned pn)
 {
-	int r;
+	int r = 0;
 
 	// LAB 4: Your code here.
 	void *addr = (void*)(pn*PGSIZE);
 	if( (uvpt[pn] & PTE_W)||(uvpt[pn]) & PTE_COW ){
-		if(sys_page_map(0, addr, envid, addr, PTE_COW|PTE_P|PTE_U)<0){
-			panic("map env id 0 to envid");
+		
+		r = sys_page_map(0, addr, envid, addr, PTE_COW|PTE_P|PTE_U);
+		if(r<0){
+			cprintf("sys_page_map failed :%d\n",r);
+			panic("map env id 0 to child_envid failed.");
+		
 		}
-		if(sys_page_map(0, addr, 0, addr, PTE_COW|PTE_P|PTE_U)<0){
+		r = sys_page_map(0, addr, 0, addr, PTE_COW|PTE_P|PTE_U);
+		if(r<0){
+			cprintf("sys_page_map failed :%d\n",r);
 			panic("map env id 0 to 0");
 		}//?we should mark PTE_COW both to two id.
 	}else{
 		sys_page_map(0, addr, envid, addr, PTE_U|PTE_P);
 	}
-	panic("duppage not implemented");
+	cprintf("1.");
+	//panic("duppage not implemented");
 	return 0;
 }
 
@@ -117,13 +124,31 @@ fork(void)
 	if(child_envid < 0 ){
 		panic("sys_exofork failed.");
 	} 
-	
+	uint32_t addr = 0;	
 	//copy address space and page fault handler to the child.
-	
-
+	for (addr = 0; addr < USTACKTOP; addr += PGSIZE){
+		if (
+			(uvpd[PDX(addr)] & PTE_P) && 
+			(uvpt[PGNUM(addr)] & PTE_P)&& 
+			(uvpt[PGNUM(addr)] & PTE_U)
+		   ){
+			duppage(child_envid, PGNUM(addr));
+	 	    }	
+	}
+	panic("failed at duppage.");
 	//set up a user exception stack for pgfault() to run.
-
-	
+	int retv = 0;
+	retv = sys_page_alloc(child_envid, (void*)(UXSTACKTOP-PGSIZE), PTE_U|PTE_W|PTE_P);
+	if(retv < 0){
+		panic("sys_page_alloc failed.\n");
+	}
+	extern void _pgfault_upcall();
+	sys_env_set_pgfault_upcall(child_envid, _pgfault_upcall);
+	retv = sys_env_set_status(child_envid, ENV_RUNNABLE);
+	if(retv < 0){
+		panic("sys_env_set_status failed.\n");
+	}
+	return child_envid;
 	panic("fork not implemented");
 }
 

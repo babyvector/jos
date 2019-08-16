@@ -766,8 +766,9 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 //		cprintf("PTX(va):%d\n",PTX(va));
 //		cprintf("the va address:%x\n",va);
 //		cprintf("the returned_page_table_entry:%x\n",returned_page_table_entry);
+		cprintf("pp:%x\n",pp);
 		*returned_page_table_entry = (page2pa(pp))|perm|PTE_P;
-	
+		cprintf("after we set page_table_entry\n");
 		//NOTE:: if there is not PTE_ADDR we are wrong ,because the "perm bit" will affect we chose the right address.
 		//NOTE. 
 

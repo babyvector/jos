@@ -13,9 +13,10 @@ forkchild(const char *cur, char branch)
 
 	if (strlen(cur) >= DEPTH)
 		return;
-
+	cprintf("\t at forkchild.\n");
 	snprintf(nxt, DEPTH+1, "%s%c", cur, branch);
 	if (fork() == 0) {
+		cprintf("\t fork() == 0");
 		forktree(nxt);
 		exit();
 	}
