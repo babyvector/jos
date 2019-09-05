@@ -285,7 +285,7 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	// You will set e->env_tf.tf_eip later.
 	// Enable interrupts while in user mode.
 	// LAB 4: Your code here.
-	e->env_tf.tf_eflags |= 0;//FL_IF;
+	e->env_tf.tf_eflags |= FL_IF;
 	// Clear the page fault handler until user installs one.
 	e->env_pgfault_upcall = 0;
 
@@ -465,7 +465,7 @@ env_create(uint8_t *binary, enum EnvType type)
 	load_icode(e,binary);
 	//panic("panic in the load_icode.\n");
 	e->env_type = type;
-	cprintf("THE e->env_id is:%d\n",e->env_id);
+	cprintf("THE new created e->env_id is:%xn",e->env_id);
 }
 
 //
@@ -519,6 +519,7 @@ env_free(struct Env *e)
 	e->env_status = ENV_FREE;
 	e->env_link = env_free_list;
 	env_free_list = e;
+//	cprintf("in the env_free function.\n");
 }
 
 //
@@ -559,7 +560,8 @@ env_pop_tf(struct Trapframe *tf)
 	// Record the CPU we are running on for user-space debugging
 
 	curenv->env_cpunum = cpunum();
-	cprintf("after env_pop_tf .\n");
+//	cprintf("doing env_pop_tf .\n");
+//	cprintf("marked.\n");
 	asm volatile(
 		"\tmovl %0,%%esp\n"
 		"\tpopal\n"
@@ -605,14 +607,15 @@ env_run(struct Env *e)
 	{
 			curenv->env_status = ENV_RUNNABLE;
 	}
-	cprintf("at env_run() start.\n"); 
+//	cprintf("at env_run() start.\n"); 
+
 	curenv = e;
 	e->env_status = ENV_RUNNING;
 	e->env_runs++;
 	unlock_kernel();
-	cprintf("at env_run() unlock_kernel.\n");
+//	cprintf("at env_run() unlock_kernel.\n");
 	lcr3(PADDR(e->env_pgdir));	
-	cprintf("at env_run() access e->env_pgdir.\n");
+//	cprintf("at env_run() access e->env_pgdir.\n");
 	env_pop_tf(&(e->env_tf));
 //	panic("env_run not yet implemented");
 }

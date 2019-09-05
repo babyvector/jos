@@ -25,10 +25,10 @@ void
 set_pgfault_handler(void (*handler)(struct UTrapframe *utf))
 {
 	int r;
-	cprintf("\twe enter set_pgfault_handler.\n");	
+//	cprintf("\twe enter set_pgfault_handler.\n");	
 //	_pgfault_handler = handler;
 	if (_pgfault_handler == 0) {
-		cprintf("\t we are setting _pgfault_handler.\n");
+//		cprintf("\t we are setting _pgfault_handler.\n");
 		// First time through!
 		// LAB 4: Your code here.
 		//panic("set_pgfault_handler not implemented");
@@ -38,13 +38,13 @@ set_pgfault_handler(void (*handler)(struct UTrapframe *utf))
 		if(retv != 0){
 			panic("can't alloc page for user exception stack.\n");
 		}
-		cprintf("the _pgfault_upcall is:%d\n",_pgfault_upcall);
-		cprintf("thisenv->env_id is:%d\n",thisenv->env_id);
+//		cprintf("the _pgfault_upcall is:%d\n",_pgfault_upcall);
+//		cprintf("thisenv->env_id is:%d\n",thisenv->env_id);
 		sys_env_set_pgfault_upcall(thisenv->env_id, _pgfault_upcall);
-		cprintf("\twe set_pgfault_upcall done.\n");			
+//		cprintf("\twe set_pgfault_upcall done.\n");			
 	
 	}
-	cprintf("\twe set _pgfault_handler after this.\n");
+//	cprintf("\twe set _pgfault_handler after this.\n");
 	// Save handler pointer for assembly to call.
 	_pgfault_handler = handler;
 

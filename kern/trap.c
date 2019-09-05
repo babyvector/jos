@@ -397,7 +397,7 @@ trap_dispatch(struct Trapframe *tf)
 	// The hardware sometimes raises these because of noise on the
 	// IRQ line or other reasons. We don't care.
 	if (tf->tf_trapno == IRQ_OFFSET + IRQ_SPURIOUS) {
-		cprintf("Spurious interrupt on irq 7\n");
+		cprintf("\t\ttrap:Spurious interrupt on irq 7\n");
 		print_trapframe(tf);
 		return;
 	}
@@ -406,15 +406,15 @@ trap_dispatch(struct Trapframe *tf)
 	// interrupt using lapic_eoi() before calling the scheduler!
 	// LAB 4: Your code here.
 	if(tf->tf_trapno == IRQ_OFFSET + IRQ_TIMER){
-		cprintf("\t\t we are at clock interrupt.\n");
+///		cprintf("\t\t trap:we are at clock interrupt.\n");
 		lapic_eoi();
-	//	sched_yield();
+		sched_yield();
 		return ;
 	}
 	// Unexpected trap: The user process or the kernel has a bug.
 	switch(tf->tf_trapno){
 		case T_PGFLT:
-			cprintf("\tT_PGFLT.\n");
+//			cprintf("\tT_PGFLT.\n");
 			page_fault_handler(tf);
 			return;
 		case T_BRKPT:
@@ -422,7 +422,7 @@ trap_dispatch(struct Trapframe *tf)
 			monitor(tf);
 			return;
 		case T_SYSCALL:
-			cprintf("\tT_SYSCALL.\n");
+//			cprintf("\tT_SYSCALL.\n");
 			tf->tf_regs.reg_eax = syscall(
        				 tf->tf_regs.reg_eax,
        				 tf->tf_regs.reg_edx,
@@ -431,7 +431,7 @@ trap_dispatch(struct Trapframe *tf)
        				 tf->tf_regs.reg_edi,
        				 tf->tf_regs.reg_esi
    			 );
-  			cprintf("after T_SYSCALL.\n");
+  //			cprintf("after T_SYSCALL.\n");
 			  return;
 		default:break;
 	}
@@ -500,13 +500,15 @@ trap(struct Trapframe *tf)
 	// scheduled, so we should return to the current environment
 	// if doing so makes sense.
 	if(curenv && curenv->env_status == ENV_RUNNING){
-		cprintf("\t\t\trunning this env.\n");
-	
+		//cprintf("\t\t\trunning this env.\n");
+		//print_trapframe(&(curenv->env_tf));	
 		env_run(curenv);
-		
+		return;
 	}else{
-		cprintf("\t\t\tsched this env.\n");
-	
+//		cprintf("\t\t\tsched this env.\n");
+		//in here because we killed the parent env,so we should run
+		//child env.
+		//cprintf("now in the trap(),the curenv is %d\n",curenv);
 		sched_yield();
 	}
 	// Return to the current environment, which should be running.
@@ -526,7 +528,7 @@ page_fault_handler(struct Trapframe *tf)
 	fault_va = rcr2();
 
 	// Handle kernel-mode page faults.
-	print_trapframe(tf);
+//	print_trapframe(tf);
 	if ((tf->tf_cs&3) == 0)
 		panic("a page fault happens in kernel [eip:%x]", tf->tf_eip);
 	// LAB 3: Your code here.
@@ -604,7 +606,7 @@ page_fault_handler(struct Trapframe *tf)
 //	env_destroy(curenv);
 	cprintf("[%08x] user fault va %08x ip %08x\n",
 		curenv->env_id, fault_va, tf->tf_eip);
-	print_trapframe(tf);
+//	print_trapframe(tf);
 	env_destroy(curenv);
 	//cprintf("\t OUT function trap.c/page_fault_handler.\n");
 }

@@ -58,10 +58,12 @@ i386_init(void)
 	env_init();
 
 	trap_init();
+	cprintf("trap_init\n");
 	// Lab 4 multiprocessor initialization functions
 	mp_init();
+	cprintf("mp_init\n");
 	lapic_init();
-
+	cprintf("lapic_init.\n");
 	// Lab 4 multitasking initialization functions
 	pic_init();
 	// Acquire the big kernel lock before waking up APs
@@ -73,7 +75,7 @@ i386_init(void)
 
 #if defined(TEST)
 	// Don't touch -- used by grading script!
-	cprintf("in the if TEST.\n");
+//	cprintf("in the if TEST.\n");
 	ENV_CREATE(TEST, ENV_TYPE_USER);
 #else
 	cprintf("in the else TEST.\n");
@@ -83,13 +85,16 @@ i386_init(void)
 	//we use the next 3 lines to test Excerse 6.
 	//ENV_CREATE(user_yield,ENV_TYPE_USER);
 	//ENV_CREATE(user_yield,ENV_TYPE_USER);
-	ENV_CREATE(user_yield,ENV_TYPE_USER);
+//	ENV_CREATE(user_yield,ENV_TYPE_USER);
 
 	//we use the next  line to test Excerse 7
-	ENV_CREATE(user_dumbfork,ENV_TYPE_USER);
-#endif 
+//	ENV_CREATE(user_forktree,ENV_TYPE_USER);
+#endif
+//	ENV_CREATE(user_forktree,ENV_TYPE_USER); 
+	cprintf("in 386_init() we are going to run sched_yield.\n");
 	// Schedule and run the first user environment!
 	sched_yield();
+	cprintf("in 386_init() after we invoke sched_yield.\n");
 }
 
 // While boot_aps is booting a given CPU, it communicates the per-core
@@ -131,13 +136,12 @@ mp_main(void)
 {
 	// We are in high EIP now, safe to switch to kern_pgdir 
 	lcr3(PADDR(kern_pgdir));
-	cprintf("SMP: CPU %d starting\n", cpunum());
 
+	cprintf("SMP: CPU %d starting\n", cpunum());
 	lapic_init();
 	env_init_percpu();
 	trap_init_percpu();
 	xchg(&thiscpu->cpu_status, CPU_STARTED); // tell boot_aps() we're up
-
 	// Now that we have finished some basic setup, call sched_yield()
 	// to start running processes on this CPU.  But make sure that
 	// only one CPU can enter the scheduler at a time!

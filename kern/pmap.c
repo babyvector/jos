@@ -587,7 +587,7 @@ page_decref(struct PageInfo* pp)
 // table and page directory entries.
 //
 pte_t *
-pgdir_walk(pde_t *pgdir, const void *va, int create)
+pgdir_walk(pde_t *pgdir,const void *va, int create)
 {
 
 	// Fill this function in
@@ -601,11 +601,11 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 const void* out_va = va;
 //if( (uint32_t)out_va&0xf0000000 && !((uint32_t)out_va&0x0ffffff) )
 //cprintf("va :%x\n",va);
-	if( pgdir[PDX(va)] == 0 ){//memset has already set it to zero?
+	if( !(pgdir[PDX(va)] & PTE_P) ){//memset has already set it to zero?
 		if(create == 0)
 			return NULL;
 		else{
-			struct PageInfo * return_page = page_alloc(0);
+			struct PageInfo * return_page = page_alloc(ALLOC_ZERO);
 //cprintf(" we are at the page_allloc to check #497\n");
 //cprintf("the mapped va is:%x\n",va);
 			//return_page->pp_ref++;
@@ -620,9 +620,9 @@ const void* out_va = va;
 				//this line can make the
 				//the line assert(ptep == ptep1+PTX(va))
 				//pass in the check_page();
-				pgdir[PDX(va)] = page2pa(return_page);	
+				pgdir[PDX(va)] = page2pa(return_page)|PTE_P|PTE_U|PTE_W;	
 //cprintf("from the else exit.\n\n");
-				return (pte_t*)(KADDR(PTE_ADDR(page2pa(return_page))))+PTX(va);
+				//return (pte_t*)(KADDR(PTE_ADDR(page2pa(return_page))))+PTX(va);
 
 				//return phy address	
 			}
@@ -630,15 +630,15 @@ const void* out_va = va;
 	}else{
 		//cprintf("B");
 		//cprintf("the page_walk else:0x%x\n",pgdir[PDX(va)]);
-		return (pte_t*)(KADDR(PTE_ADDR(pgdir[PDX(va)])))+PTX(va);
+		//return (pte_t*)(KADDR(PTE_ADDR(pgdir[PDX(va)])))+PTX(va);
 	}
-
+	pte_t *p = KADDR(PTE_ADDR(pgdir[PDX(va)]));
 	
 
 
 	//my code end.
 
-	return NULL;
+	return p+PTX(va);
 }
 
 //
@@ -726,75 +726,41 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 int
 page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 {
+	pte_t *pte = pgdir_walk(pgdir, va, 1);
+	if(!pte)
+		return -E_NO_MEM;
+	pp->pp_ref++;
+	if(*pte & PTE_P)
+		page_remove(pgdir, va);
+	*pte = page2pa(pp)|perm|PTE_P;
+
+	return 0;
+	/*
 	// Fill this function in
 	//my code start here
 	pde_t * returned_page_table_entry;
 	struct PageInfo * returned_page_table_entry_page;
 //cprintf("#### before remove page_free_list:%x\n",page_free_list);
-	page_remove(pgdir,va);
-//cprintf("#### after remove page_free_list:%x\n",page_free_list);
-	//if it is not mapped,page_remove() do nothing.
+	pte_t *pte;
+	struct PageInfo * pg = page_lookup(pgdir,va,NULL);
+	if(pg == pp){
+		pte = pgdir_walk(pgdir,va,1);
+		pte[0] = page2pa(pp)|perm|PTE_P;
+		return 0;
+	}else if(pg != NULL){
+		page_remove(pgdir,va);
+	}
 	returned_page_table_entry = pgdir_walk(pgdir,va,1);
-//cprintf("#### after page_walk page_free_list:%x\n",page_free_list);
-	/*
-		pgdir_walk(); return a page2pa(pp)
-	*/
-//	cprintf("the pp is:%x\n",pp);	
-//	cprintf("the page2pa(pp) is:%x\n",page2pa(pp));
-//	cprintf("the returned_page_table_entry:%x\n",returned_page_table_entry);	
-
 	if(returned_page_table_entry != NULL){
-		//pgdir[PDX(va)] = page2pa(returned_page_table_page)|perm|PTE_P;
-		
-
-		//we have already insert the right side of the equation in
-		// the pgdir[PDX(va)] in the pgdir_walk(),but we do it again 
-		//here to insert the permission
-		pgdir[PDX(va)] = PADDR((void*)((uint32_t)(returned_page_table_entry)|perm|PTE_P));
-		//NOTE:if we don't set the right permission the "check" won't pass.		
-		
-
-		//after reading the map 'pages' I think the perm should be set
-		//entry in page table,not above.
-		
-		//I think the page table entry is above?but
-		//I don't clear now.is it useful set this?
-		//the pgdir[PDX(va)] should get phy address.
-			//pde_t *page_table = 
-			//PTE_ADDR(page2pa(returned_page_table_table_entry)));
-//		cprintf("in the return is not NULL before\n");
-//		cprintf("PTX(va):%d\n",PTX(va));
-//		cprintf("the va address:%x\n",va);
-//		cprintf("the returned_page_table_entry:%x\n",returned_page_table_entry);
-		cprintf("pp:%x\n",pp);
-		*returned_page_table_entry = (page2pa(pp))|perm|PTE_P;
-		cprintf("after we set page_table_entry\n");
-		//NOTE:: if there is not PTE_ADDR we are wrong ,because the "perm bit" will affect we chose the right address.
-		//NOTE. 
-
 	
-//cprintf("after KADDR:%x\n",((pde_t*)((pde_t)returned_page_table_entry))[PTX(va)] );
-
+		returned_page_table_entry[0] = (page2pa(pp))|perm|PTE_P;
 		pp->pp_ref++;
-//cprintf("#### pp %x\n",pp);
-//cprintf("#### page_free_list %x\n",page_free_list);
-//cprintf("#### pp2 mapped pp->ref:%x\n",pp->pp_ref);
-//cprintf("#### page_free_list %x\n",page_free_list->pp_ref);
-		//Q? the code upper is right?
-		//NOTE:we have used the two level page table structure to map
-		//the va to the real page.so we can use the [va,va+4KB) mem.	
-
-//		cprintf("in the return is not NULL\n");
-//		cprintf("page2pa(pp)|perm|PTE_P:%x\n",page2pa(pp)|perm|PTE_P);	
-		//how do you know the 'va' has phy page mapped
-		//use function page_lookup.	
-		//pgdir_walk();->page_alloc();
-		//page_remove();
 		return 0;	
 	}else{
 //		cprintf("E_NO_MEM%d\n",-E_NO_MEM);
 		return -E_NO_MEM;
 	}
+	*/
 }
 
 //
@@ -811,6 +777,12 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 struct PageInfo *
 page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 {
+	pte_t *pte = pgdir_walk(pgdir, va, 0);
+	if(!pte || !(*pte & PTE_P))return NULL;
+	if(pte_store)
+		*pte_store = pte;
+	return pa2page(PTE_ADDR(*pte));
+/*
 	// Fill this function in
 	//my second time code
 	//page_remove(pgdir,va);
@@ -835,10 +807,10 @@ page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 		//	cprintf("#page lookup in the else else 0x%x\n",p[PTX(va)]) ;
 
 
-			return pa2page( *p );
+			return pa2page( PTE_ADDR(*p) );
 		}
 	}
-	
+*/	
 	/*
 	//my code start
 	pde_t *p;
@@ -893,22 +865,28 @@ page_remove(pde_t *pgdir, void *va)
 	pde_t * temp_pte;
 	struct PageInfo * page_to_free;
 	page_to_free = page_lookup(pgdir,va,&temp_pte);
-	
+	if(!page_to_free || !(*temp_pte & PTE_P))return;
+	page_decref(page_to_free);
+	*temp_pte = 0;
+	tlb_invalidate(pgdir, va);
+/*	
 	if(page_to_free != NULL){
 	//we should handle the page returned.
 		page_decref(page_to_free);	
-		tlb_invalidate(pgdir,va);
+		//tlb_invalidate(pgdir,va);
 		//now we remove the entry in page table
 		//I don't know 
 	//	temp_pte = (pte_t*)(PTE_ADDR(temp_pte));
 		//change pa to va so that we can use temp_pte[]
-		*temp_pte = 0;
+		temp_pte[0] = 0;
 		//set the entry to va in the page table to zero.
 	}else{
 		//do nothing.
 	}
+	tlb_invalidate(pgdir,va);
 	return;
 	//my code end
+*/
 }
 
 //

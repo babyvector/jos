@@ -42,29 +42,72 @@ sched_yield(void)
 	// below to halt the cpu.
 
 	// LAB 4: Your code here.
+
+/*
+	struct Env *e;
+
+	// cprintf("curenv: %x\n", curenv);
+
+	int i, cur=0;
+
+	if (curenv) cur=ENVX(curenv->env_id);
+
+		else cur = 0;
+
+	// cprintf("cur: %x, thiscpu: %x\n", cur, thiscpu->cpu_id);
+
+	for (i = 0; i < NENV; ++i) {
+
+		int j = (cur+i) % NENV;
+
+		if (j < 2) cprintf("envs[%x].env_status: %x\n", j, envs[j].env_status);
+
+		if (envs[j].env_status == ENV_RUNNABLE) {
+
+			if (j == 1) 
+
+				cprintf("\n");
+
+			env_run(envs + j);
+
+		}
+
+	}
+
+	if (curenv && curenv->env_status == ENV_RUNNING)
+
+		env_run(curenv);
+*/
+
 	//	e = &envs[ENVX(envid)];
-	cprintf("!kern/sched_yield().\n");
-	int running_env_id = -1;
+//	cprintf("\tget in sched_yield.\n");
+	int running_env_index = -1;
+	
 	if(curenv == 0){
-		running_env_id = -1;
+		running_env_index = -1;
 	}else{
 		//cprintf("\t WE MAY CRUSH HERE.\n");
-		running_env_id = ENVX(curenv->env_id);
+		running_env_index = ENVX(curenv->env_id);
+//	cprintf("the curenv->env_id is:%x\n",curenv);
 	}
 	//cprintf("the real running env_id:%d\n",ENVX(curenv->env_id));
 	//cprintf("The running_env_id is:%d\n",running_env_id);
 	for(int i = 0;i<NENV;i++){
-
-		if(running_env_id == NENV-1){
-			running_env_id = 0;
-		}else{
-			running_env_id++;
+		//cprintf("%d ",running_env_id);
+		running_env_index++;
+		if(running_env_index == NENV){
+			running_env_index = 0;
 		}
-
-		if(envs[running_env_id].env_status == ENV_RUNNABLE){
-			cprintf("\tWE ARE RUNNING ENV_ID IS:%d\n",running_env_id);
+//		cprintf("%d ",running_env_id); 
+		if(envs[running_env_index].env_status == ENV_RUNNABLE){
+//			cprintf("\tWE ARE RUNNING ENV_ID IS:%d\n",running_env_id);
+//			cprintf("\tout of sched_yield.\n");
 			//env_run(&envs[0]);
-			env_run(&envs[running_env_id]);			
+//			cprintf("sched.c we are really running envid:%d\n",running_env_id);
+//			cprintf("xxx.\n");
+//			cprintf("read to run.\n");
+//			cprintf("running_env_index is:%d\n",running_env_index);
+			env_run(&envs[running_env_index]);			
 			return;
 		}
 	}
@@ -73,13 +116,16 @@ sched_yield(void)
 	//the running env to run we will trap in sched_halt().AND WE ARE AT
 	//KERNEL MODE!
 	if(curenv && curenv->env_status == ENV_RUNNING){
-		cprintf("I AM THE ONLY ONE ENV.\n");
+//		cprintf("I AM THE ONLY ONE ENV.\n");
 		env_run(curenv);
 		return;
 	}
+	
 	// sched_halt never returns
+	cprintf("in sched we are ready shed_halt().\n");
 	sched_halt();
 }
+
 
 // Halt this CPU when there is nothing to do. Wait until the
 // timer interrupt wakes it up. This function never returns.
