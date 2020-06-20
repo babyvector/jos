@@ -37,6 +37,8 @@ fs_test(void)
 
 	if ((r = file_get_block(f, 0, &blk)) < 0)
 		panic("file_get_block: %e", r);
+	cprintf("this is blk:%s\n",blk);
+	cprintf("this is msg:%s\n",msg);
 	if (strcmp(blk, msg) != 0)
 		panic("file_get_block returned wrong data");
 	cprintf("file_get_block is good\n");

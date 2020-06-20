@@ -47,6 +47,8 @@ pgfault(struct UTrapframe *utf)
 	if(sys_page_alloc(envid, PFTEMP, PTE_W|PTE_U|PTE_P)<0){
 		panic("sys_page_alloc");
 	}
+	//we can access that addr memory,but copy one ,for other 
+	//env have the addr.
 	memcpy(PFTEMP, ROUNDDOWN(addr,PGSIZE), PGSIZE);
 	retv = sys_page_unmap(envid, addr);
 	if(retv < 0){
@@ -87,19 +89,23 @@ duppage(envid_t envid, unsigned pn)
 	int perm = PTE_U | PTE_P;
 	void *addr = (void*)(pn*PGSIZE);
 	envid_t kern_envid = sys_getenvid();
-	
-	if( (pte & PTE_W) > 0 || (pte & PTE_COW) > 0 ){
-		perm |= PTE_COW;
-	}
+	if (uvpt[pn] & PTE_SHARE) {
+		sys_page_map(0, addr, envid, addr, PTE_SYSCALL);		
+	}else if( (uvpt[pn] & PTE_W) > 0 || (uvpt[pn] & PTE_COW) > 0 ){
 
-	if((r = sys_page_map(kern_envid, addr, envid, addr, PTE_P|PTE_U|PTE_COW)) <0 ){
-		panic("duppage:page_re-mapping failed : %e",r);
-		return r;
-	}
+		if((r = sys_page_map(kern_envid, addr, envid, addr, PTE_P|PTE_U|PTE_COW)) <0 ){
+			panic("duppage:page_re-mapping failed : %e",r);
+			return r;
+		}
 	
-	if((r = sys_page_map(kern_envid, addr, kern_envid, addr, PTE_P|PTE_U|PTE_COW))<0){
-		panic("duppage:page re-mapping failed:%e",r);
-		return r;
+		if((r = sys_page_map(kern_envid, addr, kern_envid, addr, PTE_P|PTE_U|PTE_COW))<0){
+			panic("duppage:page re-mapping failed:%e",r);
+			return r;
+		}
+
+	}else{
+
+		sys_page_map(0, addr, envid, addr, PTE_U|PTE_P);
 	}
 	//cprintf("the addr is: %x\n",addr);
 	//cprintf("duppage:after second page_map.\n");

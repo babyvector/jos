@@ -25,7 +25,7 @@ void
 sched_yield(void)
 {
 	struct Env *idle;
-
+	//cprintf("curenv is:%x\n", curenv);
 	// Implement simple round-robin scheduling.
 	//
 	// Search through 'envs' for an ENV_RUNNABLE environment in
@@ -34,7 +34,8 @@ sched_yield(void)
 	//
 	// If no envs are runnable, but the environment previously
 	// running on this CPU is still ENV_RUNNING, it's okay to
-	// choose that environment.
+	// choose that environment. Make sure curenv is not null before
+	// dereferencing it.
 	//
 	// Never choose an environment that's currently running on
 	// another CPU (env_status == ENV_RUNNING). If there are
@@ -43,9 +44,9 @@ sched_yield(void)
 
 	// LAB 4: Your code here.
 
-/*
-	struct Env *e;
 
+	struct Env *e;
+/*
 	// cprintf("curenv: %x\n", curenv);
 
 	int i, cur=0;
@@ -77,12 +78,13 @@ sched_yield(void)
 	if (curenv && curenv->env_status == ENV_RUNNING)
 
 		env_run(curenv);
+
 */
 
 	//	e = &envs[ENVX(envid)];
-//	cprintf("\tget in sched_yield.\n");
+	//cprintf("\tget in sched_yield.\n");
 	int running_env_index = -1;
-	
+	//cprintf("curenv is:%d\n", curenv);	
 	if(curenv == 0){
 		running_env_index = -1;
 	}else{
@@ -92,15 +94,20 @@ sched_yield(void)
 	}
 	//cprintf("the real running env_id:%d\n",ENVX(curenv->env_id));
 	//cprintf("The running_env_id is:%d\n",running_env_id);
-	for(int i = 0;i<NENV;i++){
+	int count = 1024;
+	while(count--)
+	{
+
+	
+
 		//cprintf("%d ",running_env_id);
 		running_env_index++;
 		if(running_env_index == NENV){
 			running_env_index = 0;
 		}
-//		cprintf("%d ",running_env_id); 
+	//	cprintf("%d ",running_env_index); 
 		if(envs[running_env_index].env_status == ENV_RUNNABLE){
-//			cprintf("\tWE ARE RUNNING ENV_ID IS:%d\n",running_env_id);
+//			cprintf("\tWE ARE RUNNING ENV_ID IS:%d\n",running_env_index);
 //			cprintf("\tout of sched_yield.\n");
 			//env_run(&envs[0]);
 //			cprintf("sched.c we are really running envid:%d\n",running_env_id);
@@ -116,14 +123,41 @@ sched_yield(void)
 	//the running env to run we will trap in sched_halt().AND WE ARE AT
 	//KERNEL MODE!
 	if(curenv && curenv->env_status == ENV_RUNNING){
-//		cprintf("I AM THE ONLY ONE ENV.\n");
+	//	cprintf("I AM THE ONLY ONE ENV.\n");
+	//	cprintf("curenv is:%x\n", curenv);
 		env_run(curenv);
+		
 		return;
 	}
 	
 	// sched_halt never returns
-	cprintf("in sched we are ready shed_halt().\n");
+	cprintf("now in kernel mode, no work to do, so to halt.\n");
 	sched_halt();
+
+/*
+idle = thiscpu->cpu_env;
+   cprintf("curenv is:%x\n", idle);
+    uint32_t start = (idle != NULL) ? ENVX( idle->env_id) : 0;
+    uint32_t i = start;
+    bool first = true;
+    for (; i != start || first; i = (i+1) % NENV, first = false)
+    {
+        if(envs[i].env_status == ENV_RUNNABLE)
+        {
+            env_run(&envs[i]);
+            return ;
+        }
+    }
+ 	cprintf("%x, %d %d\n", idle, idle->env_status,ENV_RUNNING);
+    if (idle && idle->env_status == ENV_RUNNING)
+    {
+        env_run(idle);
+        return ;
+    }
+ 
+	// sched_halt never returns
+	sched_halt();
+*/
 }
 
 

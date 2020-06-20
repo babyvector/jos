@@ -73,6 +73,10 @@ i386_init(void)
 	boot_aps();
 
 
+	// Start fs.
+	ENV_CREATE(fs_fs, ENV_TYPE_FS);
+
+
 #if defined(TEST)
 	// Don't touch -- used by grading script!
 //	cprintf("in the if TEST.\n");
@@ -80,8 +84,17 @@ i386_init(void)
 #else
 	cprintf("in the else TEST.\n");
 	// Touch all you want.
-	//ENV_CREATE(user_primes, ENV_TYPE_USER);
 
+	ENV_CREATE(user_icode, ENV_TYPE_USER);
+	//ENV_CREATE(user_spawnhello, ENV_TYPE_USER);
+#endif // TEST*
+
+	// Should not be necessary - drains keyboard because interrupt has given up.
+	kbd_intr();
+
+
+	//ENV_CREATE(user_primes, ENV_TYPE_USER);
+	//ENV_CREATE(user_pingpong, ENV_TYPE_USER);
 	//we use the next 3 lines to test Excerse 6.
 	//ENV_CREATE(user_yield,ENV_TYPE_USER);
 	//ENV_CREATE(user_yield,ENV_TYPE_USER);
@@ -89,9 +102,9 @@ i386_init(void)
 
 	//we use the next  line to test Excerse 7
 //	ENV_CREATE(user_forktree,ENV_TYPE_USER);
-#endif
 //	ENV_CREATE(user_forktree,ENV_TYPE_USER); 
 	cprintf("in 386_init() we are going to run sched_yield.\n");
+
 	// Schedule and run the first user environment!
 	sched_yield();
 	cprintf("in 386_init() after we invoke sched_yield.\n");

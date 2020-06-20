@@ -76,7 +76,7 @@ int
 envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 {
 	struct Env *e;
-
+//	cprintf("\t\tin envid2env.\n");
 	// If envid is zero, return the current environment.
 	if (envid == 0) {
 		*env_store = curenv;
@@ -90,7 +90,7 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 	// that used the same slot in the envs[] array).
 	e = &envs[ENVX(envid)];
 	if (e->env_status == ENV_FREE || e->env_id != envid) {
-		cprintf("we are at e->env_id:%d == envid:%d\n",e->env_id,envid);
+		cprintf("\t\t\tAAAAAwe are at e->env_id:%d == envid:%d\n",e->env_id,envid);
 		*env_store = 0;
 		return -E_BAD_ENV;
 	}
@@ -101,6 +101,7 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 	// must be either the current environment
 	// or an immediate child of the current environment.
 	if (checkperm && e != curenv && e->env_parent_id != curenv->env_id) {
+		cprintf("\t\t\tBBBBin checkperm.\n");
 		*env_store = 0;
 		return -E_BAD_ENV;
 	}
@@ -295,7 +296,12 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	// commit the allocation
 	env_free_list = e->env_link;
 	*newenv_store = e;
+
+
+	// cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
+
 	cprintf("[%08x] new env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
+
 	return 0;
 }
 
@@ -453,6 +459,10 @@ void
 env_create(uint8_t *binary, enum EnvType type)
 {
 	// LAB 3: Your code here.
+
+
+	// If this is the file server (type == ENV_TYPE_FS) give it I/O privileges.
+	// LAB 5: Your code here.
 	int ret = 0;
 	struct Env * e = NULL;	
 	
@@ -465,7 +475,12 @@ env_create(uint8_t *binary, enum EnvType type)
 	load_icode(e,binary);
 	//panic("panic in the load_icode.\n");
 	e->env_type = type;
+	if(type == ENV_TYPE_FS)
+	{
+		e->env_tf.tf_eflags |= FL_IOPL_MASK;
+	}
 	cprintf("THE new created e->env_id is:%xn",e->env_id);
+
 }
 
 //
@@ -485,7 +500,7 @@ env_free(struct Env *e)
 		lcr3(PADDR(kern_pgdir));
 
 	// Note the environment's demise.
-	cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
+	// cprintf("[%08x] free env %08x\n", curenv ? curenv->env_id : 0, e->env_id);
 
 	// Flush all mapped pages in the user portion of the address space
 	static_assert(UTOP % PTSIZE == 0);
@@ -539,8 +554,9 @@ env_destroy(struct Env *e)
 	}
 
 	env_free(e);
-
+	cprintf("after we env_free the env.\n");
 	if (curenv == e) {
+		cprintf("going to sched_yield.\n");
 		curenv = NULL;
 		sched_yield();
 	}
